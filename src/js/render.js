@@ -304,8 +304,14 @@ export default {
 
   initCropBox() {
     const { options, canvasData } = this;
-    const { aspectRatio } = options;
-    const autoCropArea = Number(options.autoCropArea) || 0.8;
+    const {
+      aspectRatio,
+      autoCropArea,
+      autoCropAreaWidth,
+      autoCropAreaHeight,
+    } = options;
+    const cropAreaWidth = Number(autoCropAreaWidth) || Number(autoCropArea) || 0.8;
+    const cropAreaHeight = Number(autoCropAreaHeight) || Number(autoCropArea) || 0.8;
     const cropBoxData = {
       width: canvasData.width,
       height: canvasData.height,
@@ -335,11 +341,11 @@ export default {
     // The width/height of auto crop area must large than "minWidth/Height"
     cropBoxData.width = Math.max(
       cropBoxData.minWidth,
-      cropBoxData.width * autoCropArea,
+      cropBoxData.width * cropAreaWidth,
     );
     cropBoxData.height = Math.max(
       cropBoxData.minHeight,
-      cropBoxData.height * autoCropArea,
+      cropBoxData.height * cropAreaHeight,
     );
     cropBoxData.left = (
       canvasData.left + ((canvasData.width - cropBoxData.width) / 2)

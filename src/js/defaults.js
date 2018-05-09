@@ -49,6 +49,12 @@ export default {
   // Define the percentage of automatic cropping area when initializes
   autoCropArea: 0.8,
 
+  // Define the percentage of automatic cropping area width when initializes
+  autoCropAreaWidth: NaN,
+
+  // Define the percentage of automatic cropping area width when initializes
+  autoCropAreaHeight: NaN,
+
   // Enable to move the image
   movable: true,
 
