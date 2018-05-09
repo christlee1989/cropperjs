@@ -5,7 +5,7 @@
  * Copyright (c) 2015-2018 Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2018-04-15T06:20:44.574Z
+ * Date: 2018-05-09T08:29:15.387Z
  */
 
 var IN_BROWSER = typeof window !== 'undefined';
@@ -112,6 +112,12 @@ var DEFAULTS = {
 
   // Define the percentage of automatic cropping area when initializes
   autoCropArea: 0.8,
+
+  // Define the percentage of automatic cropping area width when initializes
+  autoCropAreaWidth: NaN,
+
+  // Define the percentage of automatic cropping area width when initializes
+  autoCropAreaHeight: NaN,
 
   // Enable to move the image
   movable: true,
@@ -1430,9 +1436,13 @@ var render = {
   initCropBox: function initCropBox() {
     var options = this.options,
         canvasData = this.canvasData;
-    var aspectRatio = options.aspectRatio;
+    var aspectRatio = options.aspectRatio,
+        autoCropArea = options.autoCropArea,
+        autoCropAreaWidth = options.autoCropAreaWidth,
+        autoCropAreaHeight = options.autoCropAreaHeight;
 
-    var autoCropArea = Number(options.autoCropArea) || 0.8;
+    var cropAreaWidth = Number(autoCropAreaWidth) || Number(autoCropArea) || 0.8;
+    var cropAreaHeight = Number(autoCropAreaHeight) || Number(autoCropArea) || 0.8;
     var cropBoxData = {
       width: canvasData.width,
       height: canvasData.height
@@ -1454,8 +1464,8 @@ var render = {
     cropBoxData.height = Math.min(Math.max(cropBoxData.height, cropBoxData.minHeight), cropBoxData.maxHeight);
 
     // The width/height of auto crop area must large than "minWidth/Height"
-    cropBoxData.width = Math.max(cropBoxData.minWidth, cropBoxData.width * autoCropArea);
-    cropBoxData.height = Math.max(cropBoxData.minHeight, cropBoxData.height * autoCropArea);
+    cropBoxData.width = Math.max(cropBoxData.minWidth, cropBoxData.width * cropAreaWidth);
+    cropBoxData.height = Math.max(cropBoxData.minHeight, cropBoxData.height * cropAreaHeight);
     cropBoxData.left = canvasData.left + (canvasData.width - cropBoxData.width) / 2;
     cropBoxData.top = canvasData.top + (canvasData.height - cropBoxData.height) / 2;
     cropBoxData.oldLeft = cropBoxData.left;
@@ -2815,9 +2825,20 @@ var methods = {
       var ratio = imageData.width / imageData.naturalWidth;
 
       forEach(data, function (n, i) {
-        n /= ratio;
-        data[i] = rounded ? Math.round(n) : n;
+        data[i] = n / ratio;
       });
+
+      if (rounded) {
+        // In case rounding off leads to extra 1px in right or bottom border
+        // we should round the top-left corner and the dimension (#343).
+        var bottom = Math.round(data.y + data.height);
+        var right = Math.round(data.x + data.width);
+
+        data.x = Math.round(data.x);
+        data.y = Math.round(data.y);
+        data.width = right - data.x;
+        data.height = bottom - data.y;
+      }
     } else {
       data = {
         x: 0,
